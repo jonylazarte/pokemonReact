@@ -3,6 +3,7 @@ import {react, useState, useEffect} from 'react'
 import Card from '../../components/cards/pokeCard.jsx'
 import {getPokemon} from '../../store/actions/pokemonActions.js'
 import {useSelector, useDispatch} from 'react-redux'
+import {useLocation} from 'wouter'
 
 
 
@@ -17,10 +18,11 @@ export default function MainPage(){
 	const {loading, pokemonStore, error} = useSelector(state => {return state.pokemonReducer})
     const [type, setType] = useState()
     const [pokemonFrom, setPokemonFrom] = useState()
-    console.log(type)
+    const [path, setLocation] = useLocation();
+    
 
   	useEffect(()=>{
-  		 dispatch(getPokemon())
+  		 dispatch(getPokemon(`${pokemonFrom == "User" ? "users/pokemon" : ""}`))
   		fetch(`${API_URL}pokemons/data/species`)
     	.then(response => response.json())
     	.then(data => {
@@ -43,19 +45,20 @@ export default function MainPage(){
 
    const LoadPokemon = () =>{
    	return renderData.map(poke => (
-   		<Card speciesData={species} data={poke}></Card>    
+   		<Card key={poke.id} speciesData={species} data={poke}></Card>    
       ))	
    }
-	
 
-return <>	
+
+return <>
+    {loading ? <div>LOADING...</div> : ""}	
     <button className="burger" onClick={toggleMenu}>
       <i className="fa-solid fa-bars"></i>
       <i className="fa-solid fa-close"></i>
     </button>
     <aside>
       <a>Home</a>
-      <a>Install</a>
+      <a onClick={()=>setLocation(`/Battlefield`)}>Battle</a>
       <a>Blog</a>
       <h3>Product</h3>
       <a>Why SurrealDB?</a>
@@ -63,8 +66,9 @@ return <>
       <a>Releases</a>
       <a>Roadmap</a>
       <a>Documentation</a>
-      <button>Join cloud waitlist</button>
+      <button>Log Out</button>
     </aside>
+    <header className="mainHeader">
     <input type="search" onKeyUp={(event)=>setSearchKeys(event.currentTarget.value)}></input>
     <select onChange={(event)=>{setType(event.currentTarget.value)}}>
     <option value="normal">NORMAL</option>
@@ -89,7 +93,8 @@ return <>
     <option value="unknow">UNKOW</option>
     <option value="shadow">SHADOW</option>
     </select>
-    <select onChange={(event)=>{setPokemonFrom(event.currentTarget.value)}}><option value="All">All</option><option value ="User">Owneds</option></select>
+        <select onChange={(event)=>{setPokemonFrom(event.currentTarget.value)}}><option value="All">All</option><option value ="User">Owneds</option></select>
+    </header>
     <main>{LoadPokemon()}</main>
 </>
 	

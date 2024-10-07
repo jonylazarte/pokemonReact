@@ -121,7 +121,7 @@ nav .item:nth-child(4):hover ~ .underline {
 }
 @font-face{
     font-family: boldLoL;
-    src: url("./fonts/Spiegel-BoldItalic.otf");
+    src: url("./fonts/LmsPokemonMasterDingbat-P3j2.ttf") format('truetype');;
 }
     @keyframes example {
   from {border: 1px solid red;}
@@ -131,15 +131,22 @@ nav .item:nth-child(4):hover ~ .underline {
         opacity: 0.9;
         animation-name: example;
         animation-duration: 1s;
-        width: 350px;
-        height: 650px;
+        width: 300px;
+        height: 500px;
         overflow: hidden;
         text-align: center;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: space-between;
         cursor: pointer;
+        display: flex;
+        max-width: 400px;
+        margin: 0 auto 32px;
+        border-radius: 12px;
+        background-color: #272e3c;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1),inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        padding: 5px;
+    
     }
     article:hover{
         border: 2px solid #fafafa;
@@ -154,8 +161,8 @@ nav .item:nth-child(4):hover ~ .underline {
         border-radius: 4px;
     }   
     article .pokemon{
-        scale: 2.5;
-        height: auto;
+        scale: 1;
+        height: 250px;
         width: auto;
     }
     article img{
@@ -167,10 +174,9 @@ nav .item:nth-child(4):hover ~ .underline {
         }
     article .info{
         color: white;
-        height: 30%;
         width: 100%;
         text-align: left;
-        padding: 10px;
+        padding: 25px;
         display: flex;
         flex-direction: column;
         align-content: flex-start;
@@ -186,7 +192,7 @@ nav .item:nth-child(4):hover ~ .underline {
         margin-bottom: 15px;
     }
     article .info .types img{
-        width: 45px;
+        width: 75px;
         margin-left: 5px;
     }
     article .info p{
@@ -194,13 +200,11 @@ nav .item:nth-child(4):hover ~ .underline {
         overflow: hidden;
     }
     main{
-        width: 150vh;
+        width: 70%;
+        margin: auto;
         margin-top: 20px;
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        justify-items: center;
-        align-items: center;
-        align-content: space-around;
 
     }
     body {
@@ -213,8 +217,11 @@ nav .item:nth-child(4):hover ~ .underline {
         font-family: boldLoL;
         text-stroke: 5px black;
     }
-    .allcontainer{
-      width: 100vh;
-      display: flex;
-      flex-direction: column;
+    .mainHeader{
+        display: flex;
+        flex-direction: row;
+        height: 70px;
+        justify-content: center;
+        align-items: center;
+        align-content: center;
     }

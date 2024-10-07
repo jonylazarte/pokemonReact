@@ -1,6 +1,6 @@
 import react from 'react'
 
-const pokeCard = ({speciesData, data:{id, types, height, weight}})=>{
+const pokeCard = ({speciesData, data:{id, types, height, weight, cries}})=>{
 
       const typesArray = [
         {
@@ -88,13 +88,28 @@ const pokeCard = ({speciesData, data:{id, types, height, weight}})=>{
             "url": "/api/v2/type/10002/"
         }
     ]
+  const handlePlaySound = (soundUrl, event) => {
+    const id = event.currentTarget.id
+    const audio = new Audio(soundUrl);
+    audio.play();
+    fetch('http://localhost:5050/pokemons/users/addpokemon',{
+      method:'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        "id" : "198b73c5-50b6-4fbc-a7dc-d93a6c2ec1d6",
+        "data" : {"id" : id}
+      }),
+    }).then(response =>response.json()).then(data => console.log(data))
+  };
+  const addToPokedex = (id)=>{ 
+     }
 
-      return <article key={id} className="pokemon-card"> {/* Unique key and card class */}
+      return <article id={id} key={id} className="pokemon-card" onClick={(event)=>{handlePlaySound(cries.latest, event)}} > {/* Unique key and card class */}
           <h2 className="title">{speciesData[id - 1]?.names[7].name}</h2>
           <img
             className="pokemon"
             id={id} // Set unique ID for potential usage
-            src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/${id}.gif`}
+            src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`}
             alt={`Sprite of ${speciesData[id - 1]?.names[7].name}`} // Add alt text for accessibility
           />
           <div className="info">
@@ -102,7 +117,7 @@ const pokeCard = ({speciesData, data:{id, types, height, weight}})=>{
               {types.map((type) => (
                 <img
                   key={type.type.name} // Ensure unique key based on type name
-                  src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-iii/emerald/${type.type.url.split('/')[4]}.png`}
+                  src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/types/generation-viii/legends-arceus/${type.type.url.split('/')[4]}.png`}
                   alt={`${type.type.name} type`} // Add alt text for accessibility
                 />
               ))}

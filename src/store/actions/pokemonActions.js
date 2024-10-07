@@ -15,9 +15,9 @@ export const pokemonFailure = error=>({
 
 const {VITE_API_URL : API_URL} = import.meta.env;
 
-export const getPokemon = () => dispatch =>{
+export const getPokemon = (path) => dispatch =>{
 	dispatch(pokemonRequest())
-	fetch(`${API_URL}pokemons/`)
+	fetch(`${API_URL}pokemons/${path}`)
     	.then(response => response.json())
     	.then(data => dispatch(pokemonSuccess(data)))
     	.catch(error => dispatch(pokemonFailure(error)))
