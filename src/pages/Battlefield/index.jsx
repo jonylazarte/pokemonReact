@@ -26,7 +26,7 @@ export default function Battlefield(){
   const [effectEntrie, setEffectEntrie] = useState()
   const [percentHpOne, setPercentHpOne] = useState()
   const [percentHpTwo, setPercentHpTwo] = useState()
-  const initialHpTwo = pokemonTwo?.stats[0].actual_stat ?? pokemonTwo?.stats[0].base_stat
+  const initialHpTwo = pokemonTwo?.stats[0].actual_stat 
   const initialHpOne = pokemonOne?.stats[0].actual_stat
   const [renderImage, setRenderImage] = useState()
   const [types, setTypes] = useState()
@@ -140,31 +140,38 @@ const machinePlayer = ()=>{
 
 
 
-const handleAttack = (move, index, hitsToGive, randomVs)=>{
+const handleAttack = (move, index, hitsToGive, randomVs, player)=>{
+  console.log(hpOne)
+  const attacker = player == "One" ? pokemonOne : pokemonTwo
+  const target = player == "One" ? pokemonOne : pokemonTwo
+  const attackerHP = player == "One" ? hpOne : hpTwo
+  const targetHP = player == "One" ? hpTwo : hpOne
+  const setHP = player == "One" ? setHpTwo : setHpOne
+  const setPercentHP = player == "One" ? setPercentHpTwo : setPercentHpOne
   setMoveRunning(true)
-  setEffectEntrie(pokemonOne.name.toUpperCase() + " usó " + move.name.toUpperCase() +"!")
-  handlePlaySound(pokemonOne.cries.latest)
+  setEffectEntrie(attacker.name.toUpperCase() + " usó " + move.name.toUpperCase() +"!")
+  handlePlaySound(attacker.cries.latest)
   setPpOne([...pp.slice(0, index), pp[index] - 1, ...pp.slice(index + 1)]);
   // const hitsToGive = move.meta.max_hits != null ? Math.floor(Math.random() * (move.meta.max_hits - move.meta.min_hits +1)) + move.meta.min_hits : 1
   var hitsGiven = 0
-  var actualHp = hpTwo
+  var actualTargetHP = player == "One" ? hpTwo : hpOne
   const processAttack = ()=>{
   var isFailed = false 
   if(Math.floor(Math.random() * 100 + 1) >= move.accuracy && move.accuracy != null){isFailed = true}
   const V = randomVs[hitsGiven]//Math.floor(Math.random() * 16) + 85; //Varación. entre 85 y 100
-  const N = pokemonOne.level // Nivel del pokemón atacante
-  const A = pokemonOne.stats[1].actual_stat // Cantidad de ataque. fisico-especial
-  const D = pokemonTwo.stats[2].actual_stat // Defensa del rival. fisica-especial
-  const B = getBonus(move.type, pokemonOne?.types) //Bonificacion. 1 - 1.5 - 2
-  const E = getEffectiveness(move.type, pokemonTwo?.types) // Efectividad. 0 - 0.25 - 0.5 - 1 - 2 - 4
+  const N = attacker.level // Nivel del pokemón atacante
+  const A = attacker.stats[1].actual_stat // Cantidad de ataque. fisico-especial
+  const D = target.stats[2].actual_stat // Defensa del rival. fisica-especial
+  const B = getBonus(move.type, attacker?.types) //Bonificacion. 1 - 1.5 - 2
+  const E = getEffectiveness(move.type, target?.types) // Efectividad. 0 - 0.25 - 0.5 - 1 - 2 - 4
   const P = move.power
   console.log("Bonus: " + B, "Efectividad: "+ E )
   var finalDamage = Math.floor(0.01 * B * E * V * ( (0.2 * N + 1) * A * P / (25 * D) + 2))
   if(isFailed){finalDamage = 0}
           setTimeout(()=>{
-          setHpTwo(oldHp => oldHp - finalDamage)
-          actualHp -= finalDamage
-          setPercentHpTwo(actualHp <= 0 ? 0 : actualHp * 100 / initialHpTwo)
+          setHP(oldHp => oldHp - finalDamage)
+          actualTargetHP -= finalDamage
+          setPercentHP(actualTargetHP <= 0 ? 0 : actualTargetHP * 100 / target.stats[0].actual_stat)
           hitsGiven += 1
           if(hitsToGive == hitsGiven){
                 setTimeout(()=>{
@@ -172,8 +179,8 @@ const handleAttack = (move, index, hitsToGive, randomVs)=>{
                 setEffectEntrie(effectEntrie)
                             setTimeout(()=>{            
                             setMoveRunning(false)
-                            machinePlayer()
-                            if(hpTwo <= 0) {alert(pokemonOne.name.toUpperCase() + " WINS")}
+                            //machinePlayer()
+                            if(targetHP <= 0) {alert(attacker.name.toUpperCase() + " WINS")}
                             },1000)
                 },1000)} else processAttack()
           },1500)
@@ -189,7 +196,7 @@ const setPokemon = (pokemonIndex, player)=>{
   const setPp = player == "One" ? setPpOne : setPpOne
   setPokemon(renderData[pokemonIndex])
   setHp(renderData[pokemonIndex].stats[0].actual_stat)
-  setPercent(currentPlayer == "One"? 63 : 100)
+  setPercent(100)
   const reducedMoves = renderData[pokemonIndex].moves?.map(move => {
     const moveId = move.move.url.split('/')[4];
     return moves[moveId];
@@ -266,7 +273,7 @@ useEffect(()=>{
 
   socket.on('attack', (msg) =>{
     console.log(msg.move)
-    handleAttack(msg.move, msg.index, msg.hitsToGive, msg.randomVs)
+    handleAttack(msg.move, msg.index, msg.hitsToGive, msg.randomVs, msg.currentPlayer)
   })
   return () => socket.off('attack');
 },[movesOne])
@@ -279,9 +286,8 @@ const emitAttack = (move, index)=>{
      randomVs.push(V)
   }
 
-  socket.emit('attack', {move, index, hitsToGive, randomVs})
+  socket.emit('attack', {move, index, hitsToGive, randomVs, currentPlayer})
 }
-
 
 useEffect(() => {
     // Remove any existing listeners before adding a new one
@@ -317,7 +323,7 @@ const playerPokemon = ()=>{
     <br/>
     <button onClick={()=>setCurrentPlayer("Two")}>SET PLAYER TWO</button>
   </div>
-	{!pokemonOne ? <h1></h1> : (<div className="canvas">
+	{ currentPlayer === "One" && (<div className="canvas">
       <div className="player-two-container">
         <div id="pokeballsP2">
           <h2>{pokemonTwo?.name.toUpperCase()}<span className="health-count-p2"><motion.div>{rounded}</motion.div>/{initialHpTwo} </span></h2>
@@ -330,7 +336,6 @@ const playerPokemon = ()=>{
         animationDelay: `-10s`
       }}src={pokemonTwo?.sprites?.other?.showdown?.front_default} />
       </div>
-
 
 
       <div className="player-one-container">
@@ -350,5 +355,35 @@ const playerPokemon = ()=>{
         <button className="restart-game">Restart Game</button>
       </div>
     </div>)}
+  { currentPlayer === "Two" && (<div className="canvas">
+      <div className="player-two-container">
+        <div id="pokeballsP2">
+          <h2>{pokemonOne?.name.toUpperCase()}<span className="health-count-p2"><motion.div>{rounded1}</motion.div>/{initialHpOne} </span></h2>
+          <div className="hp-container-mew">
+            <progress style={{width:`${percentHpOne}%`}} /*value={hpTwo || initialHpTwo} max={initialHpTwo}*/ className="bar p2-health"></progress>
+          </div>
+        </div>
+        <img id="ai-image" src={pokemonOne?.sprites?.other?.showdown?.front_default} />
+      </div>
+
+
+      <div className="player-one-container">
+      <div id="pokeballsP1">
+            <img src={pokemonTwo?.sprites?.other?.showdown?.back_default} id="charmander" />
+        <div className="hp-container">
+        <h2>{pokemonTwo?.name.toUpperCase()}</h2>
+        <span className="health-count-p1">HP<motion.div>{rounded}</motion.div>/{initialHpTwo}<progress style={{width:`${percentHpTwo}%`}} /*value={hpOne || initialHpOne} max={initialHpOne}*/ className="bar p1-health"></progress> </span>
+        </div>
+        </div>
+        
+        <h1 className="game-state"></h1>
+          { !moveRunning ? <div className="attack-container">
+          {movesTwo && movesTwo.map((move, index) => <MoveButton key={move.id} move={move} handleAttack={emitAttack} pp={pp[index]} index={index}></MoveButton>)}
+          
+        </div> : <div className="move-container">{effectEntrie}</div>}
+        <button className="restart-game">Restart Game</button>
+      </div>
+    </div>)
+  }
 	</>
 }
